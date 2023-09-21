@@ -101,6 +101,11 @@ const Home = () => {
               icon: <UserOutlined />,
               label: "Retailer",
             },
+            {
+              key: "3",
+              icon: <UserOutlined />,
+              label: "Requests",
+            },
           ]}
         />
       </Sider>
