@@ -5,97 +5,22 @@ header {
   & > div {
     display: inline-flex;
     align-items: center;
+    color: white;
+    font-weight: 600;
+    font-family: cursive;
+    button {
+      color: white !important;
+    }
+  }
+  & > span {
+    margin-right: 20px !important;
+    border: 1px solid white !important;
+    border-radius: 50%;
+    span {
+      padding: 5px;
+    }
   }
 }
 .ant-layout {
   height: 100vh;
-}
-.mainClockContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.dateWiseCard {
-  border: 1px solid lightgray;
-  background-color: #e4eaee;
-  display: flex;
-  flex-direction: column;
-  .date {
-    padding: 8px;
-    font-size: 14px;
-  }
-  .ant-collapse {
-    width: 100%;
-    background-color: white;
-    border-radius: 0;
-    .ant-collapse-item {
-      border-radius: 0;
-      .ant-collapse-expand-icon {
-        display: none;
-      }
-      .ant-collapse-header-text {
-        display: inline-flex;
-        align-items: center;
-        text-align: center;
-        justify-content: space-between;
-        .ticketDetails {
-          width: 65%;
-          border-right: 1px dotted;
-          text-align: start;
-        }
-        .startEndDate {
-          width: 10%;
-          border-right: 1px dotted;
-          text-align: left;
-        }
-        .duration {
-          border-right: 1px dotted;
-          width: 7%;
-          font-size: 16px;
-          font-weight: 600;
-          text-align: left;
-        }
-        .actionButtons {
-          width: 5%;
-          text-align: left;
-        }
-      }
-    }
-    .ant-collapse-content {
-      border-radius: 0;
-      .ant-collapse-content-box {
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-      }
-    }
-  }
-  .DataCard {
-    background-color: white;
-    width: 100%;
-    border-top: 1px solid lightgray;
-    display: inline-flex;
-    align-items: center;
-    padding: 16px;
-    justify-content: space-between;
-    .ticketDetails {
-      width: 70%;
-      justify-content: space-between;
-      border-right: 1px dotted;
-      display: inline-flex;
-    }
-    .startEndDate {
-      border-right: 1px dotted;
-      width: 10%;
-    }
-    .duration {
-      font-size: 16px;
-      font-weight: 600;
-      width: 7%;
-      border-right: 1px dotted;
-    }
-    .actionButtons {
-      width: 5%;
-    }
-  }
 }
