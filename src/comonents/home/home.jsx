@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./home.scss";
 import axios from "axios";
-import { Layout, Button, Menu, Collapse, Table, Spin, Alert } from "antd";
+import { Layout, Button, Menu, Table, Spin, Alert } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -11,13 +11,13 @@ import {
 } from "@ant-design/icons";
 import Logout from "../header/logout";
 const { Header, Sider, Content } = Layout;
-const { Panel } = Collapse;
+// const { Panel } = Collapse;
 
 const Home = () => {
   const accessToken = localStorage.getItem("accessToken");
   const [collapsed, setCollapsed] = useState(false);
-  const [userRole, setUserRole] = useState(""); // State to store user's role
-  const [userData, setUserData] = useState([]); // State to store user data
+  // const [userRole, setUserRole] = useState("");
+  // const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(false); // State to track loading state
   const [error, setError] = useState(null); // State to track API error
   const [manufacturer, setManufacturer] = useState([]);
@@ -33,16 +33,19 @@ const Home = () => {
     axios
       .get("https://rawcult-be.vercel.app/users", { headers })
       .then((response) => {
-        console.log("API Response:", response.data); // Log the response data
-        const userData = response.data.users;
+        // console.log("API Response:", response.data);
 
-        console.log("🚀 ~ file: home.jsx:34 ~ .then ~ response:", response);
+        // console.log("🚀 ~ file: home.jsx:34 ~ .then ~ response:", response);
         const manufacturerData = response.data.users.filter(
-          (val) => val.role === "manufacturer"
+          (val) => val.role === "manufacturer" && val.isApproved
         );
         const retailer = response.data.users.filter(
-          (val) => val.role === "retailer"
+          (val) => val.role === "retailer" && val.isApproved
         );
+        const notApproved = response.data.users.filter(
+          (user) => user.isApproved === false
+        );
+        setRequests(notApproved);
         setManufacturer(manufacturerData);
         setRetailer(retailer);
         setLoading(false);
@@ -53,26 +56,11 @@ const Home = () => {
       });
   }, []);
 
-  useEffect(() => {
-    // Fetch the list of PATCH API requests
-    axios
-      .get("https://rawcult-be.vercel.app/users/adminApproval", { headers })
-      .then((response) => {
-        console.log("API Response:", response.data);
-        const requestList = response.data; // Assuming the response is an array of request objects
-        setRequests(requestList);
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  }, []);
-
   const handleAccept = (requestId) => {
-    // Send a PATCH request to accept the request with the given ID
     axios
       .patch(
-        `https://rawcult-be.vercel.app/users/adminApproval/${headers}/accept`,
-        null,
+        `https://rawcult-be.vercel.app/users/adminApproval`,
+        { userId: requestId },
         { headers }
       )
       .then((response) => {
@@ -86,11 +74,10 @@ const Home = () => {
   };
 
   const handleReject = (requestId) => {
-    // Send a PATCH request to reject the request with the given ID
     axios
-      .patch(
-        `https://rawcult-be.vercel.app/users/adminApproval/${headers}/reject`,
-        null,
+      .delete(
+        "https://rawcult-be.vercel.app/users/adminApproval",
+        { userId: requestId },
         { headers }
       )
       .then((response) => {
@@ -158,22 +145,22 @@ const Home = () => {
               key: "3",
               icon: <PlusSquareOutlined />,
               label: "Requests",
-              render: () =>
-                requests.map((request) => (
-                  <div key={request.id} className="request-item">
-                    {/* Display request details here */}
-                    <p>Request ID: {request.id}</p>
-                    <p>Request Data: {request.data}</p>
+              // render: () =>
+              //   requests.map((request) => (
+              //     <div key={request.id} className="request-item">
+              //       {/* Display request details here */}
+              //       <p>Request ID: {request.id}</p>
+              //       <p>Request Data: {request.data}</p>
 
-                    {/* Accept and Reject buttons */}
-                    <button onClick={() => handleAccept(request.id)}>
-                      Accept
-                    </button>
-                    <button onClick={() => handleReject(request.id)}>
-                      Reject
-                    </button>
-                  </div>
-                )),
+              //       {/* Accept and Reject buttons */}
+              //       <button onClick={() => handleAccept(request.id)}>
+              //         Accept
+              //       </button>
+              //       <button onClick={() => handleReject(request.id)}>
+              //         Reject
+              //       </button>
+              //     </div>
+              //   )),
             },
           ]}
         />
@@ -214,9 +201,12 @@ const Home = () => {
           ) : (
             <Table
               columns={userColumns}
-              dataSource={selectedKey === 1 ? manufacturer : retailer}
-              rowKey="_id" // Specify a unique key for each row
-              // Add additional table properties and customization as needed
+              dataSource={
+                (selectedKey === 1 && manufacturer) ||
+                (selectedKey === 2 && retailer) ||
+                (selectedKey === 3 && requests)
+              }
+              rowKey="_id"
             />
           )}
         </Content>
