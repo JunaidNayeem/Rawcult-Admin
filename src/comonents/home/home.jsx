@@ -6,6 +6,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
+  PlusSquareOutlined,
+  CarryOutOutlined,
 } from "@ant-design/icons";
 import Logout from "../header/logout";
 const { Header, Sider, Content } = Layout;
@@ -21,6 +23,7 @@ const Home = () => {
   const [manufacturer, setManufacturer] = useState([]);
   const [retailer, setRetailer] = useState([]);
   const [selectedKey, setSelectedKey] = useState(1);
+  const [requests, setRequests] = useState([]);
 
   const headers = { Authorization: `Bearer ${accessToken}` };
 
@@ -49,6 +52,56 @@ const Home = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    // Fetch the list of PATCH API requests
+    axios
+      .get("https://rawcult-be.vercel.app/users/adminApproval", { headers })
+      .then((response) => {
+        console.log("API Response:", response.data);
+        const requestList = response.data; // Assuming the response is an array of request objects
+        setRequests(requestList);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  }, []);
+
+  const handleAccept = (requestId) => {
+    // Send a PATCH request to accept the request with the given ID
+    axios
+      .patch(
+        `https://rawcult-be.vercel.app/users/adminApproval/${headers}/accept`,
+        null,
+        { headers }
+      )
+      .then((response) => {
+        // Handle success (you can update the UI as needed)
+        console.log("Request accepted:", response.data);
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error accepting request:", error);
+      });
+  };
+
+  const handleReject = (requestId) => {
+    // Send a PATCH request to reject the request with the given ID
+    axios
+      .patch(
+        `https://rawcult-be.vercel.app/users/adminApproval/${headers}/reject`,
+        null,
+        { headers }
+      )
+      .then((response) => {
+        // Handle success (you can update the UI as needed)
+        console.log("Request rejected:", response.data);
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error rejecting request:", error);
+      });
+  };
 
   // Define columns for the user table
   const userColumns = [
@@ -93,7 +146,7 @@ const Home = () => {
           items={[
             {
               key: "1",
-              icon: <UserOutlined />,
+              icon: <CarryOutOutlined />,
               label: "Manufacturer",
             },
             {
@@ -103,8 +156,24 @@ const Home = () => {
             },
             {
               key: "3",
-              icon: <UserOutlined />,
+              icon: <PlusSquareOutlined />,
               label: "Requests",
+              render: () =>
+                requests.map((request) => (
+                  <div key={request.id} className="request-item">
+                    {/* Display request details here */}
+                    <p>Request ID: {request.id}</p>
+                    <p>Request Data: {request.data}</p>
+
+                    {/* Accept and Reject buttons */}
+                    <button onClick={() => handleAccept(request.id)}>
+                      Accept
+                    </button>
+                    <button onClick={() => handleReject(request.id)}>
+                      Reject
+                    </button>
+                  </div>
+                )),
             },
           ]}
         />
