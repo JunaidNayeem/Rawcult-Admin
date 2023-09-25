@@ -27,34 +27,43 @@ const Home = () => {
 
   const headers = { Authorization: `Bearer ${accessToken}` };
 
-  useEffect(() => {
-    // Fetch data from the API
-    setLoading(true);
+  const fetchData = () => {
+    // setLoading(true);
     axios
       .get("https://rawcult-be.vercel.app/users", { headers })
       .then((response) => {
-        // console.log("API Response:", response.data);
-
-        // console.log("🚀 ~ file: home.jsx:34 ~ .then ~ response:", response);
         const manufacturerData = response.data.users.filter(
           (val) => val.role === "manufacturer" && val.isApproved
         );
-        const retailer = response.data.users.filter(
+        const retailerData = response.data.users.filter(
           (val) => val.role === "retailer" && val.isApproved
         );
-        const notApproved = response.data.users.filter(
-          (user) => user.isApproved === false
+        const notApprovedData = response.data.users.filter(
+          (user) => !user.isApproved
         );
-        setRequests(notApproved);
+        setRequests(notApprovedData);
         setManufacturer(manufacturerData);
-        setRetailer(retailer);
+        setRetailer(retailerData);
         setLoading(false);
       })
       .catch((error) => {
         setError(error.message);
         setLoading(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchData();
+
+    // Set up polling with a timeout function
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5000); // Fetch data every 5 seconds
+
+    // Clear the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array to run this effect only once
 
   const handleAccept = (requestId) => {
     axios
