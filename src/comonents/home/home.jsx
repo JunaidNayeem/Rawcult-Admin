@@ -75,11 +75,10 @@ const Home = () => {
 
   const handleReject = (requestId) => {
     axios
-      .delete(
-        "https://rawcult-be.vercel.app/users/adminRejection",
-        { userId: requestId },
-        { headers }
-      )
+      .delete("https://rawcult-be.vercel.app/users/adminRejection", {
+        data: { userId: requestId },
+        headers,
+      })
       .then((response) => {
         // Handle success (you can update the UI as needed)
         console.log("Request rejected:", response.data);
