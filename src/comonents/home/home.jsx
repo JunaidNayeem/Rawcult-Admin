@@ -76,7 +76,7 @@ const Home = () => {
   const handleReject = (requestId) => {
     axios
       .delete(
-        "https://rawcult-be.vercel.app/users/adminApproval",
+        "https://rawcult-be.vercel.app/users/adminRejection",
         { userId: requestId },
         { headers }
       )
@@ -116,6 +116,50 @@ const Home = () => {
       title: "Unit Address",
       dataIndex: "unitAddress",
       key: "unitAddress",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      className: "registration-table-column",
+      render: (text, record) => (
+        <span>
+          {record.isApproved ? (
+            <>
+              <Button
+                className="btn3"
+                danger
+                onClick={() => handleReject(record._id)}
+              >
+                Delete
+              </Button>
+              {/* <Button
+                className="btn3"
+                style={{ marginLeft: "5px" }}
+                onClick={() => handlePause(record)}
+              >
+                Pause
+              </Button> */}
+            </>
+          ) : (
+            <>
+              <Button
+                className="btn3"
+                type="primary"
+                onClick={() => handleAccept(record._id)}
+              >
+                Accept
+              </Button>
+              <Button
+                className="btn3"
+                style={{ marginLeft: "5px" }}
+                onClick={() => handleReject(record._id)}
+              >
+                Reject
+              </Button>
+            </>
+          )}
+        </span>
+      ),
     },
   ];
 
