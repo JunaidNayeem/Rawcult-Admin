@@ -70,6 +70,16 @@ const Home = () => {
           (user) => user._id !== requestId
         );
         setRequests(updatedRequests);
+
+        const updatedManufacturer = manufacturer.filter(
+          (user) => user._id !== requestId
+        );
+        setManufacturer(updatedManufacturer);
+
+        const updatedRetailer = retailer.filter(
+          (user) => user._id !== requestId
+        );
+        setRetailer(updatedRetailer);
       })
       .catch((error) => {
         // Handle error
@@ -90,6 +100,16 @@ const Home = () => {
           (user) => user._id !== requestId
         );
         setRequests(updatedRequests);
+
+        const updatedManufacturer = manufacturer.filter(
+          (user) => user._id !== requestId
+        );
+        setManufacturer(updatedManufacturer);
+
+        const updatedRetailer = retailer.filter(
+          (user) => user._id !== requestId
+        );
+        setRetailer(updatedRetailer);
       })
       .catch((error) => {
         // Handle error
