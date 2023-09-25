@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./home.scss";
 import axios from "axios";
-import { Layout, Button, Menu, Table, Spin, Alert } from "antd";
+import { Layout, Button, Menu, Table, Spin, Alert, Modal } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -16,14 +16,14 @@ const { Header, Sider, Content } = Layout;
 const Home = () => {
   const accessToken = localStorage.getItem("accessToken");
   const [collapsed, setCollapsed] = useState(false);
-  // const [userRole, setUserRole] = useState("");
-  // const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(false); // State to track loading state
   const [error, setError] = useState(null); // State to track API error
   const [manufacturer, setManufacturer] = useState([]);
   const [retailer, setRetailer] = useState([]);
   const [selectedKey, setSelectedKey] = useState(1);
   const [requests, setRequests] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const headers = { Authorization: `Bearer ${accessToken}` };
 
@@ -66,6 +66,20 @@ const Home = () => {
       .then((response) => {
         // Handle success (you can update the UI as needed)
         console.log("Request accepted:", response.data);
+        const updatedRequests = requests.filter(
+          (user) => user._id !== requestId
+        );
+        setRequests(updatedRequests);
+
+        const updatedManufacturer = manufacturer.filter(
+          (user) => user._id !== requestId
+        );
+        setManufacturer(updatedManufacturer);
+
+        const updatedRetailer = retailer.filter(
+          (user) => user._id !== requestId
+        );
+        setRetailer(updatedRetailer);
       })
       .catch((error) => {
         // Handle error
@@ -82,11 +96,35 @@ const Home = () => {
       .then((response) => {
         // Handle success (you can update the UI as needed)
         console.log("Request rejected:", response.data);
+        const updatedRequests = requests.filter(
+          (user) => user._id !== requestId
+        );
+        setRequests(updatedRequests);
+
+        const updatedManufacturer = manufacturer.filter(
+          (user) => user._id !== requestId
+        );
+        setManufacturer(updatedManufacturer);
+
+        const updatedRetailer = retailer.filter(
+          (user) => user._id !== requestId
+        );
+        setRetailer(updatedRetailer);
       })
       .catch((error) => {
         // Handle error
         console.error("Error rejecting request:", error);
       });
+  };
+
+  const handleShowModal = (user) => {
+    setSelectedUser(user);
+    setIsModalVisible(true);
+  };
+
+  const handleHideModal = () => {
+    setSelectedUser(null);
+    setIsModalVisible(false);
   };
 
   // Define columns for the user table
@@ -127,7 +165,10 @@ const Home = () => {
               <Button
                 className="btn3"
                 danger
-                onClick={() => handleReject(record._id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event propagation to the row
+                  handleReject(record._id);
+                }}
               >
                 Delete
               </Button>
@@ -144,14 +185,20 @@ const Home = () => {
               <Button
                 className="btn3"
                 type="primary"
-                onClick={() => handleAccept(record._id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event propagation to the row
+                  handleAccept(record._id);
+                }}
               >
                 Accept
               </Button>
               <Button
                 className="btn3"
                 style={{ marginLeft: "5px" }}
-                onClick={() => handleReject(record._id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event propagation to the row
+                  handleReject(record._id);
+                }}
               >
                 Reject
               </Button>
@@ -188,22 +235,6 @@ const Home = () => {
               key: "3",
               icon: <PlusSquareOutlined />,
               label: "Requests",
-              // render: () =>
-              //   requests.map((request) => (
-              //     <div key={request.id} className="request-item">
-              //       {/* Display request details here */}
-              //       <p>Request ID: {request.id}</p>
-              //       <p>Request Data: {request.data}</p>
-
-              //       {/* Accept and Reject buttons */}
-              //       <button onClick={() => handleAccept(request.id)}>
-              //         Accept
-              //       </button>
-              //       <button onClick={() => handleReject(request.id)}>
-              //         Reject
-              //       </button>
-              //     </div>
-              //   )),
             },
           ]}
         />
@@ -244,14 +275,53 @@ const Home = () => {
           ) : (
             <Table
               columns={userColumns}
+              style={{ cursor: "pointer" }}
               dataSource={
                 (selectedKey === 1 && manufacturer) ||
                 (selectedKey === 2 && retailer) ||
                 (selectedKey === 3 && requests)
               }
               rowKey="_id"
+              onRow={(record) => {
+                return {
+                  onClick: () => handleShowModal(record), // Handle row click
+                };
+              }}
             />
           )}
+          <Modal
+            title="User Details:-"
+            visible={isModalVisible}
+            onCancel={handleHideModal}
+            footer={null}
+          >
+            {selectedUser && (
+              <div>
+                <p>Name: {selectedUser.name}</p>
+                <p>Email: {selectedUser.email}</p>
+                <p>Phone: {selectedUser.phone}</p>
+                <p style={{ textTransform: "capitalize" }}>
+                  Role: {selectedUser.role}
+                </p>
+                <p>Aadhaar/Pan: {selectedUser.aadhaarOrPan}</p>
+                <p>GST No.: {selectedUser.gstNo}</p>
+
+                {selectedUser.role === "manufacturer" ? (
+                  <>
+                    <p>Manufacturer Unit: {selectedUser.mfdUnit}</p>
+                    <p>Product Deal: {selectedUser.productDeal}</p>
+                    <p>Unit Address: {selectedUser.unitAddress}</p>
+                  </>
+                ) : (
+                  <>
+                    <p>Shop Name: {selectedUser.shopName}</p>
+                    <p>Shop Address: {selectedUser.shopAddress}</p>
+                  </>
+                )}
+                {/* Add other user details as needed */}
+              </div>
+            )}
+          </Modal>
         </Content>
       </Layout>
     </Layout>
