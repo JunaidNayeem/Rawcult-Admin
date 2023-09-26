@@ -24,17 +24,22 @@ const Login = ({ setIsAuthenticated }) => {
 
       const data = await response.json();
 
-      if (data.user.isApproved) {
+      if (data.user.role === "admin") {
         const authToken = `${data.accessToken}`;
-        const role = `${data.user.role}`;
+        // const role = `${data.user.role}`;
         localStorage.setItem("accessToken", authToken);
-        localStorage.setItem("role", role);
+        // localStorage.setItem("role", role);
         setIsAuthenticated(true);
         navigate(location?.state ? location?.state?.from?.pathname : "/");
         setAlert(null);
       } else {
         // If authentication fails, show an alert with the error message
-        setAlert(<Alert message={data.message} type="error" />);
+        setAlert(
+          <Alert
+            message="You are not authorized to access this panel!"
+            type="error"
+          />
+        );
       }
     } catch (error) {
       console.error("An error occurred:", error);

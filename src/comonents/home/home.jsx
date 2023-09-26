@@ -47,7 +47,9 @@ const Home = () => {
         setLoading(false);
       })
       .catch((error) => {
-        setError(error.message);
+        error.response.status === 401
+          ? setError("Session Expired! Please Logout then Login again...")
+          : setError(error.response.data.msg);
         setLoading(false);
       });
   };
