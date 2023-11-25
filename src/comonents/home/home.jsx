@@ -39,23 +39,39 @@ const Home = () => {
   const [notificationDescription, setNotificationDescription] = useState("");
 
   const headers = { Authorization: `Bearer ${accessToken}` };
+  const [form] = Form.useForm();
 
   const handleSendNotification = () => {
-    // Implement the logic to send notification
-    console.log(
-      "Sending Notification:",
-      notificationTitle,
-      notificationDescription
-    );
-    // Reset form after sending
-    setNotificationTitle("");
-    setNotificationDescription("");
+    // Create the payload
+    const payload = {
+      title: notificationTitle,
+      description: notificationDescription,
+    };
+    console.log(payload);
+
+    // Make the POST request
+    axios
+      .post("http://localhost:5003/firebase/notification/admin", payload, {
+        headers,
+      })
+      .then((response) => {
+        // Handle the response
+        console.log("Notification sent:", response.data);
+        // Reset form after sending
+        setNotificationTitle("");
+        setNotificationDescription("");
+      })
+      .catch((error) => {
+        // Handle any errors
+        console.error("Error sending notification:", error);
+      });
+    form.resetFields();
   };
 
   const fetchData = () => {
     // setLoading(true);
     axios
-      .get("https://rawcult-be.vercel.app/users", { headers })
+      .get("https://backend-teal-three.vercel.app/users", { headers })
       .then((response) => {
         const manufacturerData = response.data.users.filter(
           (val) => val.role === "manufacturer" && val.isApproved
@@ -95,7 +111,7 @@ const Home = () => {
   const handleAccept = (requestId) => {
     axios
       .patch(
-        `https://rawcult-be.vercel.app/users/adminApproval`,
+        `https://backend-teal-three.vercel.app/users/adminApproval`,
         { userId: requestId },
         { headers }
       )
@@ -125,7 +141,7 @@ const Home = () => {
 
   const handleReject = (requestId) => {
     axios
-      .delete("https://rawcult-be.vercel.app/users/adminRejection", {
+      .delete("https://backend-teal-three.vercel.app/users/adminRejection", {
         data: { userId: requestId },
         headers,
       })
@@ -247,7 +263,7 @@ const Home = () => {
 
   // Render Notification Form
   const renderNotificationForm = () => (
-    <Form layout="vertical" onFinish={handleSendNotification}>
+    <Form layout="vertical" onFinish={handleSendNotification} form={form}>
       <Form.Item
         label="Title"
         name="title"
