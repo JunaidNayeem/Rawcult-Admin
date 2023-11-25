@@ -1,13 +1,24 @@
 import { useState, useEffect } from "react";
 import "./home.scss";
 import axios from "axios";
-import { Layout, Button, Menu, Table, Spin, Alert, Modal } from "antd";
+import {
+  Layout,
+  Button,
+  Menu,
+  Table,
+  Spin,
+  Alert,
+  Modal,
+  Input,
+  Form,
+} from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
   PlusSquareOutlined,
   CarryOutOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
 import Logout from "../header/logout";
 const { Header, Sider, Content } = Layout;
@@ -24,8 +35,22 @@ const Home = () => {
   const [requests, setRequests] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationDescription, setNotificationDescription] = useState("");
 
   const headers = { Authorization: `Bearer ${accessToken}` };
+
+  const handleSendNotification = () => {
+    // Implement the logic to send notification
+    console.log(
+      "Sending Notification:",
+      notificationTitle,
+      notificationDescription
+    );
+    // Reset form after sending
+    setNotificationTitle("");
+    setNotificationDescription("");
+  };
 
   const fetchData = () => {
     // setLoading(true);
@@ -220,6 +245,37 @@ const Home = () => {
     },
   ];
 
+  // Render Notification Form
+  const renderNotificationForm = () => (
+    <Form layout="vertical" onFinish={handleSendNotification}>
+      <Form.Item
+        label="Title"
+        name="title"
+        rules={[{ required: true, message: "Please input the title!" }]}
+      >
+        <Input
+          value={notificationTitle}
+          onChange={(e) => setNotificationTitle(e.target.value)}
+        />
+      </Form.Item>
+      <Form.Item
+        label="Description"
+        name="description"
+        rules={[{ required: true, message: "Please input the description!" }]}
+      >
+        <Input.TextArea
+          value={notificationDescription}
+          onChange={(e) => setNotificationDescription(e.target.value)}
+        />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Send
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -246,6 +302,11 @@ const Home = () => {
               key: "3",
               icon: <PlusSquareOutlined />,
               label: "Requests",
+            },
+            {
+              key: "4",
+              icon: <NotificationOutlined />,
+              label: "Notification",
             },
           ]}
         />
@@ -283,14 +344,20 @@ const Home = () => {
             <Spin size="large" />
           ) : error ? (
             <Alert message={`Error: ${error}`} type="error" />
+          ) : selectedKey === 4 ? (
+            renderNotificationForm() // Render Notification Form when selectedKey is 4
           ) : (
             <Table
               columns={userColumns}
               style={{ cursor: "pointer" }}
               dataSource={
-                (selectedKey === 1 && manufacturer) ||
-                (selectedKey === 2 && retailer) ||
-                (selectedKey === 3 && requests)
+                selectedKey === 1
+                  ? manufacturer
+                  : selectedKey === 2
+                  ? retailer
+                  : selectedKey === 3
+                  ? requests
+                  : [] // This will ensure no data is passed to the table when selectedKey is 4
               }
               rowKey="_id"
               onRow={(record) => {
