@@ -51,9 +51,13 @@ const Home = () => {
 
     // Make the POST request
     axios
-      .post("http://localhost:5003/firebase/notification/admin", payload, {
-        headers,
-      })
+      .post(
+        "https://backend-teal-three.vercel.app/firebase/notification/admin",
+        payload,
+        {
+          headers,
+        }
+      )
       .then((response) => {
         // Handle the response
         console.log("Notification sent:", response.data);
